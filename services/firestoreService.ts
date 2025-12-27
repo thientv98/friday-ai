@@ -28,9 +28,6 @@ const getUserDoc = (userId: string) => {
 
 // ========== EXPENSES ==========
 
-/**
- * Lưu một expense mới hoặc cập nhật expense hiện có
- */
 export const saveExpense = async (userId: string, expense: Expense): Promise<void> => {
   try {
     const expenseRef = doc(getDbInstance(), getExpensesCollection(userId), expense.id);
@@ -63,9 +60,6 @@ export const saveExpenses = async (userId: string, expenses: Expense[]): Promise
   }
 };
 
-/**
- * Xóa một expense
- */
 export const deleteExpense = async (userId: string, expenseId: string): Promise<void> => {
   try {
     const expenseRef = doc(getDbInstance(), getExpensesCollection(userId), expenseId);
@@ -76,9 +70,6 @@ export const deleteExpense = async (userId: string, expenseId: string): Promise<
   }
 };
 
-/**
- * Cập nhật một expense
- */
 export const updateExpense = async (userId: string, expense: Expense): Promise<void> => {
   try {
     const expenseRef = doc(getDbInstance(), getExpensesCollection(userId), expense.id);
@@ -92,10 +83,6 @@ export const updateExpense = async (userId: string, expense: Expense): Promise<v
   }
 };
 
-/**
- * Load tất cả expenses của user (one-time)
- * Note: Nên sử dụng subscribeToExpenses để có real-time updates
- */
 export const loadExpenses = async (userId: string): Promise<Expense[]> => {
   try {
     const expensesRef = collection(getDbInstance(), getExpensesCollection(userId));
@@ -116,9 +103,6 @@ export const loadExpenses = async (userId: string): Promise<Expense[]> => {
   }
 };
 
-/**
- * Subscribe để lắng nghe thay đổi expenses (real-time)
- */
 export const subscribeToExpenses = (
   userId: string,
   callback: (expenses: Expense[]) => void
@@ -151,9 +135,6 @@ export const subscribeToExpenses = (
 
 // ========== CATEGORIES ==========
 
-/**
- * Lưu categories của user
- */
 export const saveCategories = async (userId: string, categories: Category[]): Promise<void> => {
   try {
     const userDocRef = getUserDoc(userId);
@@ -164,9 +145,6 @@ export const saveCategories = async (userId: string, categories: Category[]): Pr
   }
 };
 
-/**
- * Thêm một category mới
- */
 export const addCategory = async (userId: string, category: Category): Promise<void> => {
   try {
     const userDocRef = getUserDoc(userId);
@@ -204,9 +182,6 @@ export const loadCategories = async (userId: string): Promise<Category[]> => {
   }
 };
 
-/**
- * Subscribe để lắng nghe thay đổi categories (real-time)
- */
 export const subscribeToCategories = (
   userId: string,
   callback: (categories: Category[]) => void
