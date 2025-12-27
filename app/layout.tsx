@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import PWARegister from '@/components/PWARegister';
+import ViewportFix from '@/components/ViewportFix';
 
 export const metadata: Metadata = {
   title: 'Friday AI',
@@ -55,6 +56,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className="bg-mesh-gradient min-h-screen text-slate-800 antialiased selection:bg-emerald-200 selection:text-emerald-900">
+        <ViewportFix />
         <AuthProvider>
           {children}
         </AuthProvider>

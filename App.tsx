@@ -196,13 +196,6 @@ function App() {
         
         {/* Header */}
         <header className="px-6 py-5 flex justify-between items-center z-30 absolute top-0 left-0 w-full pointer-events-none">
-          <div className="flex items-center gap-2 pointer-events-auto cursor-pointer transition-all active:scale-95" onClick={() => setView(AppView.HOME)}>
-             {view !== AppView.HOME && (
-                <div className="w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-emerald-600 shadow-sm border border-white/50">
-                    <Icon name="Mic" size={20} />
-                </div>
-             )}
-          </div>
           {view === AppView.HOME && (
               <div className="flex gap-2 pointer-events-auto animate-fade-in">
                  <button onClick={handleLogout} className="p-2 bg-white/30 backdrop-blur-md rounded-full text-slate-600 hover:text-red-500 hover:bg-white/50 transition-colors active:scale-90">
