@@ -14,8 +14,61 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscriptComplete, isProcess
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showManualInput, setShowManualInput] = useState(false);
   const [manualText, setManualText] = useState('');
+  const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
   
   const recognitionRef = useRef<any>(null);
+  const permissionRequestedRef = useRef(false);
+
+  // Request microphone permission once when component mounts
+  useEffect(() => {
+    const requestMicrophonePermission = async () => {
+      // Only request once per session
+      if (permissionRequestedRef.current) return;
+      permissionRequestedRef.current = true;
+
+      try {
+        // Check if Permissions API is available
+        if (navigator.permissions && navigator.permissions.query) {
+          try {
+            const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+            setPermissionGranted(result.state === 'granted');
+            
+            // Listen for permission changes
+            result.onchange = () => {
+              setPermissionGranted(result.state === 'granted');
+            };
+            return;
+          } catch (e) {
+            // Permissions API might not support 'microphone' on all browsers
+            console.log('Permissions API not fully supported');
+          }
+        }
+
+        // Fallback: Request permission by getting user media
+        // This will prompt user once, then permission is remembered for the session
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            setPermissionGranted(true);
+            // Stop the stream immediately - we just needed permission
+            stream.getTracks().forEach(track => track.stop());
+          } catch (err: any) {
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+              setPermissionGranted(false);
+            } else {
+              // Other errors might mean device unavailable, but permission might be granted
+              setPermissionGranted(true);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error checking microphone permission:', error);
+        setPermissionGranted(null);
+      }
+    };
+
+    requestMicrophonePermission();
+  }, []);
 
   useEffect(() => {
     const win = window as unknown as IWindow;
@@ -52,6 +105,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscriptComplete, isProcess
       recognition.onerror = (event: any) => {
         if (event.error === 'not-allowed') {
            setErrorMsg("Vui lòng cấp quyền micro.");
+           setPermissionGranted(false);
         } else if (event.error !== 'no-speech') {
            setErrorMsg("Lỗi nhận diện. Thử lại nhé.");
         }
@@ -71,9 +125,25 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscriptComplete, isProcess
     } else {
       if(recognitionRef.current) {
          try {
+            // If permission was already granted, start directly
+            // If permission was denied, show error
+            // If permission is unknown, try to start (will prompt if needed)
+            if (permissionGranted === false) {
+              setErrorMsg("Vui lòng cấp quyền micro trong cài đặt trình duyệt.");
+              setShowManualInput(true);
+              return;
+            }
+            
             recognitionRef.current.start();
-         } catch(e) {
+         } catch(e: any) {
             console.error(e);
+            if (e.name === 'NotAllowedError' || e.message?.includes('not-allowed')) {
+              setErrorMsg("Vui lòng cấp quyền micro.");
+              setPermissionGranted(false);
+              setShowManualInput(true);
+            } else {
+              setErrorMsg("Lỗi khởi động microphone.");
+            }
          }
       } else {
          setShowManualInput(true);
