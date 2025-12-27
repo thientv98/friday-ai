@@ -449,16 +449,79 @@ const Dashboard: React.FC<DashboardProps> = ({ expenses, categories, onAddManual
       {/* Edit Modal - Simplifed for brevity, retaining logic */}
       {expenseToEdit && createPortal(
           <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/20 backdrop-blur-md animate-fade-in">
-             <div className="bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] shadow-2xl p-6 animate-slide-up space-y-5">
-                 <div className="flex justify-between items-center"><h3 className="font-bold text-lg">Sửa giao dịch</h3><button onClick={() => setExpenseToEdit(null)}><Icon name="X" /></button></div>
+             <div className="bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] shadow-2xl p-6 animate-slide-up space-y-5 max-h-[90vh] overflow-y-auto">
+                 <div className="flex justify-between items-center">
+                    <h3 className="font-bold text-lg">Sửa giao dịch</h3>
+                    <button onClick={() => setExpenseToEdit(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                        <Icon name="X" size={20} />
+                    </button>
+                 </div>
+                 
+                 {/* Type Selector */}
                  <div className="flex bg-slate-100 p-1 rounded-2xl">
                     {(['EXPENSE', 'INCOME'] as TransactionType[]).map(t => (
                         <button key={t} onClick={() => setExpenseToEdit({...expenseToEdit, type: t})} className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${expenseToEdit.type === t ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-400'}`}>{t === 'INCOME' ? 'Thu nhập' : 'Chi tiêu'}</button>
                     ))}
                  </div>
-                 <input type="number" value={expenseToEdit.amount} onChange={e => setExpenseToEdit({...expenseToEdit, amount: Number(e.target.value)})} className="w-full text-3xl font-black text-center bg-transparent outline-none py-4 text-slate-800" />
-                 <input type="text" value={expenseToEdit.title} onChange={e => setExpenseToEdit({...expenseToEdit, title: e.target.value})} className="w-full p-4 rounded-xl bg-slate-50 font-semibold" />
-                 <button onClick={handleSaveEdit} className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-600/20">Lưu thay đổi</button>
+                 
+                 {/* Amount Input */}
+                 <input 
+                    type="number" 
+                    value={expenseToEdit.amount} 
+                    onChange={e => setExpenseToEdit({...expenseToEdit, amount: Number(e.target.value)})} 
+                    className="w-full text-3xl font-black text-center bg-transparent outline-none py-4 text-slate-800" 
+                    placeholder="0"
+                 />
+                 
+                 {/* Title Input */}
+                 <input 
+                    type="text" 
+                    value={expenseToEdit.title} 
+                    onChange={e => setExpenseToEdit({...expenseToEdit, title: e.target.value})} 
+                    className="w-full p-4 rounded-xl bg-slate-50 font-semibold outline-none focus:ring-2 focus:ring-emerald-500/30" 
+                    placeholder="Mô tả giao dịch"
+                 />
+                 
+                 {/* Category Selector */}
+                 <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Danh mục</label>
+                    <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                        {categories
+                            .filter(cat => {
+                                // Filter categories based on transaction type
+                                if (expenseToEdit.type === 'INCOME') {
+                                    return cat.id.includes('INCOME') || cat.id === 'SALARY';
+                                }
+                                return !cat.id.includes('INCOME') || cat.id === 'EXPENSE';
+                            })
+                            .map(cat => {
+                                const isSelected = expenseToEdit.categoryId === cat.id;
+                                return (
+                                    <button
+                                        key={cat.id}
+                                        onClick={() => setExpenseToEdit({...expenseToEdit, categoryId: cat.id})}
+                                        className={`flex items-center gap-2 p-3 rounded-xl text-sm font-semibold transition-all border ${
+                                            isSelected
+                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-500/50 shadow-sm ring-2 ring-emerald-500/20'
+                                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        <div className="w-3 h-3 rounded-full shrink-0" style={{backgroundColor: cat.color}}></div>
+                                        <span className="truncate">{cat.name}</span>
+                                        {isSelected && <Icon name="Check" size={16} className="ml-auto text-emerald-600 shrink-0" />}
+                                    </button>
+                                );
+                            })}
+                    </div>
+                 </div>
+                 
+                 {/* Save Button */}
+                 <button 
+                    onClick={handleSaveEdit} 
+                    className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-colors active:scale-95"
+                 >
+                    Lưu thay đổi
+                 </button>
              </div>
           </div>, document.body
       )}

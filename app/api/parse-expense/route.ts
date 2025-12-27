@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Category, ParsedExpense } from "@/types";
+import { getRandomGeminiKey } from "@/utils/geminiKeys";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,15 +15,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      console.error("API Key missing");
+    let apiKey: string;
+    try {
+      apiKey = getRandomGeminiKey();
+    } catch (error: any) {
+      console.error("API Key error:", error);
       return NextResponse.json(
-        { error: 'API Key chưa được cấu hình. Vui lòng kiểm tra biến môi trường GEMINI_API_KEY.' },
+        { error: error?.message || 'API Key chưa được cấu hình. Vui lòng kiểm tra biến môi trường GEMINI_API_KEY.' },
         { status: 500 }
       );
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
 
     // Prepare category list string for the prompt
     const catListInfo = (categories || []).map((c: Category) => `- ID: "${c.id}" (${c.name})`).join('\n');

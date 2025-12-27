@@ -21,9 +21,7 @@ View your app in AI Studio: https://ai.studio/apps/drive/1Hs0knd9BtoFyUebE1EfbKK
 
 2. Tạo file `.env.local` và thêm các biến môi trường:
    ```bash
-   # Gemini API Key
-   GEMINI_API_KEY=your_gemini_api_key_here
-   
+x
    # Firebase Config
    NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
@@ -34,6 +32,7 @@ View your app in AI Studio: https://ai.studio/apps/drive/1Hs0knd9BtoFyUebE1EfbKK
    ```
    - Lấy Gemini API key tại: https://ai.google.dev/
    - Lấy Firebase config tại: Firebase Console > Project Settings > General > Your apps
+   - **Lưu ý**: Có thể cung cấp nhiều Gemini API keys (cách nhau bằng dấu phẩy) để tăng quota và phân tải request
 
 3. Chạy ứng dụng:
    ```bash
