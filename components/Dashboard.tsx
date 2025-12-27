@@ -148,6 +148,12 @@ const Dashboard: React.FC<DashboardProps> = ({ expenses, categories, onAddManual
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
   
+  // Helper for Tooltip formatter to handle undefined values
+  // Using explicit type to match Recharts Formatter signature
+  const formatCurrencyTooltip: (value: any, name?: any) => string = (value: any) => {
+    return value != null && typeof value === 'number' ? formatCurrency(value) : '';
+  };
+  
   const formatCompactNumber = (number: number) => {
       const absValue = Math.abs(number);
       if (absValue >= 1_000_000_000) return (number / 1_000_000_000).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + ' tỷ';
@@ -308,7 +314,7 @@ const Dashboard: React.FC<DashboardProps> = ({ expenses, categories, onAddManual
                         {pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                         </Pie>
                         <Tooltip 
-                            formatter={(value: any) => value != null ? formatCurrency(value) : ''} 
+                            formatter={formatCurrencyTooltip} 
                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.2)', backgroundColor: 'rgba(255,255,255,0.95)', fontSize: '12px', fontWeight: '600' }}
                         />
                     </PieChart>
