@@ -1,0 +1,7 @@
+{
+  "name": "Friday AI",
+  "description": "Ghi nhận chi tiêu cực nhanh bằng giọng nói với sự hỗ trợ của Gemini AI.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

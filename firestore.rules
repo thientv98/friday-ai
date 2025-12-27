@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - mỗi user chỉ có thể đọc/ghi data của chính họ
+    match /users/{userId} {
+      // Cho phép đọc/ghi nếu user đã đăng nhập và userId khớp với auth.uid
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Expenses subcollection - user chỉ có thể đọc/ghi expenses của chính họ
+      match /expenses/{expenseId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
+
