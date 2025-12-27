@@ -13,13 +13,18 @@ import {
   QuerySnapshot,
   DocumentData
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { getDbInstance } from '@/lib/firebase';
 import { Expense, Category } from '@/types';
 
 // Collections paths
 const getExpensesCollection = (userId: string) => `users/${userId}/expenses`;
 const getCategoriesCollection = (userId: string) => `users/${userId}/categories`;
-const getUserDoc = (userId: string) => doc(db, 'users', userId);
+const getUserDoc = (userId: string) => {
+  if (typeof window === 'undefined') {
+    throw new Error('getUserDoc can only be called on the client-side');
+  }
+  return doc(getDbInstance(), 'users', userId);
+};
 
 // ========== EXPENSES ==========
 
@@ -28,7 +33,7 @@ const getUserDoc = (userId: string) => doc(db, 'users', userId);
  */
 export const saveExpense = async (userId: string, expense: Expense): Promise<void> => {
   try {
-    const expenseRef = doc(db, getExpensesCollection(userId), expense.id);
+    const expenseRef = doc(getDbInstance(), getExpensesCollection(userId), expense.id);
     await setDoc(expenseRef, {
       ...expense,
       createdAt: Timestamp.fromMillis(expense.createdAt),
@@ -45,7 +50,7 @@ export const saveExpense = async (userId: string, expense: Expense): Promise<voi
 export const saveExpenses = async (userId: string, expenses: Expense[]): Promise<void> => {
   try {
     const promises = expenses.map(expense => {
-      const expenseRef = doc(db, getExpensesCollection(userId), expense.id);
+      const expenseRef = doc(getDbInstance(), getExpensesCollection(userId), expense.id);
       return setDoc(expenseRef, {
         ...expense,
         createdAt: Timestamp.fromMillis(expense.createdAt),
@@ -63,7 +68,7 @@ export const saveExpenses = async (userId: string, expenses: Expense[]): Promise
  */
 export const deleteExpense = async (userId: string, expenseId: string): Promise<void> => {
   try {
-    const expenseRef = doc(db, getExpensesCollection(userId), expenseId);
+    const expenseRef = doc(getDbInstance(), getExpensesCollection(userId), expenseId);
     await deleteDoc(expenseRef);
   } catch (error) {
     console.error('Error deleting expense:', error);
@@ -76,7 +81,7 @@ export const deleteExpense = async (userId: string, expenseId: string): Promise<
  */
 export const updateExpense = async (userId: string, expense: Expense): Promise<void> => {
   try {
-    const expenseRef = doc(db, getExpensesCollection(userId), expense.id);
+    const expenseRef = doc(getDbInstance(), getExpensesCollection(userId), expense.id);
     await updateDoc(expenseRef, {
       ...expense,
       createdAt: Timestamp.fromMillis(expense.createdAt),
@@ -93,7 +98,7 @@ export const updateExpense = async (userId: string, expense: Expense): Promise<v
  */
 export const loadExpenses = async (userId: string): Promise<Expense[]> => {
   try {
-    const expensesRef = collection(db, getExpensesCollection(userId));
+    const expensesRef = collection(getDbInstance(), getExpensesCollection(userId));
     const q = query(expensesRef, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
     
@@ -119,7 +124,7 @@ export const subscribeToExpenses = (
   callback: (expenses: Expense[]) => void
 ): (() => void) => {
   try {
-    const expensesRef = collection(db, getExpensesCollection(userId));
+    const expensesRef = collection(getDbInstance(), getExpensesCollection(userId));
     const q = query(expensesRef, orderBy('createdAt', 'desc'));
     
     const unsubscribe = onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {

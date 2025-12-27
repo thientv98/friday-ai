@@ -4,15 +4,19 @@ import {
   signOut as firebaseSignOut,
   User,
   onAuthStateChanged,
-  Auth
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { getAuthInstance as getAuth } from '@/lib/firebase';
 
 const googleProvider = new GoogleAuthProvider();
 
+// Use getAuthInstance directly
+
 export const signInWithGoogle = async (): Promise<User> => {
+  if (typeof window === 'undefined') {
+    throw new Error('signInWithGoogle can only be called on the client-side');
+  }
   try {
-    const result = await signInWithPopup(auth, googleProvider);
+    const result = await signInWithPopup(getAuth(), googleProvider);
     return result.user;
   } catch (error: any) {
     console.error('Error signing in with Google:', error);
@@ -21,8 +25,11 @@ export const signInWithGoogle = async (): Promise<User> => {
 };
 
 export const signOut = async (): Promise<void> => {
+  if (typeof window === 'undefined') {
+    throw new Error('signOut can only be called on the client-side');
+  }
   try {
-    await firebaseSignOut(auth);
+    await firebaseSignOut(getAuth());
   } catch (error: any) {
     console.error('Error signing out:', error);
     throw error;
@@ -30,10 +37,17 @@ export const signOut = async (): Promise<void> => {
 };
 
 export const onAuthChange = (callback: (user: User | null) => void) => {
-  return onAuthStateChanged(auth, callback);
+  if (typeof window === 'undefined') {
+    // Return a no-op unsubscribe function during SSR
+    return () => {};
+  }
+  return onAuthStateChanged(getAuth(), callback);
 };
 
 export const getCurrentUser = (): User | null => {
-  return auth.currentUser;
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return getAuth().currentUser;
 };
 
