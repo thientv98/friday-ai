@@ -308,7 +308,7 @@ const Dashboard: React.FC<DashboardProps> = ({ expenses, categories, onAddManual
                         {pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                         </Pie>
                         <Tooltip 
-                            formatter={(value: number | undefined) => value ? formatCurrency(value) : ''} 
+                            formatter={(value: any) => value != null ? formatCurrency(value) : ''} 
                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.2)', backgroundColor: 'rgba(255,255,255,0.95)', fontSize: '12px', fontWeight: '600' }}
                         />
                     </PieChart>
@@ -341,7 +341,10 @@ const Dashboard: React.FC<DashboardProps> = ({ expenses, categories, onAddManual
                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 600}} dy={10} />
                             <Tooltip 
                                 cursor={{fill: '#f1f5f9', radius: 4}}
-                                formatter={(value: number | undefined, name: string) => [value ? formatCompactNumber(value) : '', categories.find(c => c.id === name)?.name || name]}
+                                formatter={(value: number | undefined, name: string | undefined) => [
+                                    value ? formatCompactNumber(value) : '', 
+                                    name ? (categories.find(c => c.id === name)?.name || name) : ''
+                                ]}
                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.2)', backgroundColor: 'rgba(255,255,255,0.9)' }}
                                 labelStyle={{ fontWeight: 'bold', color: '#334155', marginBottom: '5px' }}
                             />
